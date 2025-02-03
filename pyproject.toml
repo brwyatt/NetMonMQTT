@@ -1,0 +1,84 @@
+packages = ["mqttnetworkmonitor"]
+
+[tool.setuptools.package-data]
+mqttnetworkmonitor = []
+
+[project]
+# This is a unique identifier for your project, typically in the format <org_name>.<package_name>
+name = "mqttnetworkmonitor"
+version = "0.1.0"
+description = "Network monitor that publishes to MQTT"
+readme = "README.md"  # Assuming you have a README.md file
+
+# SPDX license identifier. You can find a list of valid identifiers at https://spdx.org/licenses/
+license = {text = "GPLv3"}
+
+# Add your name and email address
+authors = [
+    {name = "Bryan Wyatt", email = "brwyatt@gmail.com"},
+]
+
+# Specify the minimum Python version required
+requires-python = ">=3.11"
+
+# Classify your project with PyPI trove classifiers
+# See https://pypi.org/classifiers/ for a complete list
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: System :: Monitoring",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Networking :: Monitoring",
+]
+
+# Dependencies
+dependencies = [
+    "setuptools>=50.0.0,<76.0.0",
+    "paho-mqtt>=1.6.1",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipython>=7.0.0,<9.0.0",
+    "pre-commit>=2.0.0,<5.0.0",
+    "tox>=4.23.2,<5.0.0",
+    "mqttnetworkmonitor[test]",
+]
+test = [
+    "coverage>=7.6.9,<8.0.0",
+    "pytest>=8.3.4,<9.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/brwyatt/MQTTNetworkMonitor"
+"Bug Tracker" = "https://github.com/brwyatt/MQTTNetworkMonitor/issues"
+
+# Entry points for console scripts and plugins
+[project.entry-points."console_scripts"]
+netmon = "mqttnetworkmonitor.cli:main"
+
+[build-system]
+# These are the assumed build requirements if not specified
+requires = ["setuptools>=50.0.0,<76.0.0"]
+build-backend = "setuptools.build_meta"  # Specifies the backend to use for building the distribution
+
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
