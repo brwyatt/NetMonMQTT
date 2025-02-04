@@ -1,5 +1,5 @@
 from typing import Optional
-import pyyaml
+import yaml
 
 
 class ConnectionConfig:
@@ -15,7 +15,7 @@ class ConnectionConfig:
         if file_name:
             try:
                 with open(file_name, "r") as file:
-                    file_data = pyyaml.safe_load(file)
+                    file_data = yaml.safe_load(file)
             except FileNotFoundError:
                 pass
 
@@ -43,7 +43,7 @@ class Config:
     def __init__(self, file_name: str = "config.yaml"):
         try:
             with open(file_name, "r") as file:
-                self._data = pyyaml.safe_load(file)
+                self._data = yaml.safe_load(file)
         except FileNotFoundError:
             raise ValueError(f"Config file {file_name} not found")
 
