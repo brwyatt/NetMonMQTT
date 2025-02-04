@@ -2,3 +2,19 @@ site:
   name: "SiteA"
   domain: "a.example.net"
   interfaces: 2
+remote_sites:
+  SiteB:
+    domain: "b.example.net"
+    interfaces: 1
+    tests:
+      ping:
+        - 10.2.0.1
+        - 10.2.0.25
+      dns:
+        - resolver: 10.2.0.1
+          record: "testdns.{domain}"
+          type: "TXT"
+          expected: "SUCCESS!"
+  SiteC:
+    domain: "c.example.net"
+    interfaces: 1
