@@ -40,7 +40,7 @@ class ConnectionConfig:
 
 
 class Config:
-    def __init__(self, file_name: str = "config.yaml"):
+    def __init__(self, file_name: str = "./config.yaml"):
         try:
             with open(file_name, "r") as file:
                 self._data = yaml.safe_load(file)
