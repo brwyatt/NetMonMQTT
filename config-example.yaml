@@ -1,0 +1,4 @@
+site:
+  name: "SiteA"
+  domain: "a.example.net"
+  interfaces: 2
