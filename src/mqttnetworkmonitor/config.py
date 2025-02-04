@@ -43,21 +43,36 @@ class Config:
     def __init__(self, file_name: str = "./config.yaml"):
         try:
             with open(file_name, "r") as file:
-                self._data = yaml.safe_load(file)
+                self._data = {
+                    "site": {},
+                    "remote_sites": {},
+                    "tunnels": {},
+                    **yaml.safe_load(file)
+                }
         except FileNotFoundError:
             raise ValueError(f"Config file {file_name} not found")
 
+        # Verify `site` values
         if not isinstance(self._data.get("site"), dict):
-            raise ValueError("Missing 'site' in config file")
-
+            raise ValueError("Missing 'site' in config file or not a dict")
         if not isinstance(self._data.get("site", {}).get("name"), str):
             raise ValueError("Missing 'site.name' in config file or not a string")
-
         if not isinstance(self._data.get("site", {}).get("domain"), str):
             raise ValueError("Missing 'site.domain' in config file or not a string")
-
         if not isinstance(self._data.get("site", {}).get("interfaces"), int):
             raise ValueError("Missing 'site.interfaces' in config file or not a number")
+
+        # Verify `remote_sites` values
+        if not isinstance(self._data.get("remote_sites", {}), dict):
+            raise ValueError("Value of 'remote_sites' in config file is not a list")
+        for name, data in self._data.get("remote_sites", {}).items():
+            if not isinstance(data, dict):
+                raise ValueError(f"Value of 'remote_sites.{name}' in config file is not a dict")
+            if not isinstance(data.get("domain"), str):
+                raise ValueError(f"Missing 'remote_sites.{name}.domain' in config file or not a string")
+            if not isinstance(data.get("interfaces"), int):
+                raise ValueError(f"Missing 'remote_sites.{name}.interfaces' in config file or not a number")
+
 
     def __getitem__(self, key):
         return self._data[key]
