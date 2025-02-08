@@ -6,8 +6,8 @@ from dns.resolver import resolve_at
 def check_dns(
     host: str,
     server: str,
-    query_type="A",
-    timeout=2,
+    query_type: str = "A",
+    timeout: int = 2,
     answer: Optional[Union[str, List[str]]] = None
 ) -> Tuple[bool, float]:
     if answer is str:
