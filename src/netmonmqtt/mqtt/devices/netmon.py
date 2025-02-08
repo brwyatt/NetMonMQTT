@@ -7,7 +7,7 @@ class NetMon(MQTTDevice):
     def __init__(self, client, site_name):
         with  open("/etc/machine-id", "r") as f:
             machine_id = f.read().strip()
-        device_id = f"NetMon_{site_name}_{machine_id}"
+        device_id = f"NetMon_{site_name}_{machine_id}".replace(" ", "_")
 
         super().__init__(client, device_id, f"{site_name} NetMon ({machine_id})", "NetMon", "brwyattt")
         self.site_name = site_name
