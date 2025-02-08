@@ -1,11 +1,11 @@
-packages = ["mqttnetworkmonitor"]
+packages = ["netmonmqtt"]
 
 [tool.setuptools.package-data]
-mqttnetworkmonitor = []
+netmonmqtt = []
 
 [project]
 # This is a unique identifier for your project, typically in the format <org_name>.<package_name>
-name = "mqttnetworkmonitor"
+name = "netmonmqtt"
 version = "0.1.0"
 description = "Network monitor that publishes to MQTT"
 readme = "README.md"  # Assuming you have a README.md file
@@ -48,7 +48,7 @@ dev = [
     "ipython>=7.0.0,<9.0.0",
     "pre-commit>=2.0.0,<5.0.0",
     "tox>=4.23.2,<5.0.0",
-    "mqttnetworkmonitor[test]",
+    "netmonmqtt[test]",
 ]
 test = [
     "coverage>=7.6.9,<8.0.0",
@@ -56,12 +56,12 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/brwyatt/MQTTNetworkMonitor"
-"Bug Tracker" = "https://github.com/brwyatt/MQTTNetworkMonitor/issues"
+Homepage = "https://github.com/brwyatt/NetMonMQTT"
+"Bug Tracker" = "https://github.com/brwyatt/NetMonMQTT/issues"
 
 # Entry points for console scripts and plugins
 [project.entry-points."console_scripts"]
-netmon = "mqttnetworkmonitor.cli:main"
+netmonmqtt = "netmonmqtt.cli:main"
 
 [build-system]
 # These are the assumed build requirements if not specified

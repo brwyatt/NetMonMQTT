@@ -171,5 +171,4 @@ cython_debug/
 .pypirc
 
 # Application config files
-/connection.yaml
 /config.yaml
