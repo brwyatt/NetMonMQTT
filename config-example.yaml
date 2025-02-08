@@ -2,4 +2,4 @@ host: 127.0.0.1
 port: 1883
 username: example_user
 password: supersecret
-sitename: "SiteA"
+site_name: "Site A"
