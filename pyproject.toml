@@ -36,11 +36,11 @@ classifiers = [
 
 # Dependencies
 dependencies = [
-    "dnspython>=2.7.0,<2.8.0",
-    "paho-mqtt>=1.6.1,<1.7.0",
-    "pythonping>=1.1.4,<1.2.0",
-    "pyyaml>=6.0,<7.0",
-    "setuptools>=50.0.0,<76.0.0",
+    "dnspython>=2.7.0,<3.0.0",
+    "paho-mqtt>=2.1.0,<3.0.0",
+    "pythonping>=1.1.0,<1.2.0",
+    "pyyaml>=6.0.0,<7.0.0",
+    "setuptools>=75.8.0,<76.0.0",
 ]
 
 [project.optional-dependencies]
