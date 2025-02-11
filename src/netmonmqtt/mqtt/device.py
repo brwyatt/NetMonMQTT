@@ -1,5 +1,7 @@
 import json
 from importlib.metadata import metadata
+from random import randint
+from time import sleep
 from typing import List, Optional
 from paho.mqtt.client import Client as MQTTClient
 
@@ -17,7 +19,8 @@ class MQTTDevice():
         name: str,
         model: Optional[str] = None,
         manufacturer: Optional[str] = None,
-        sw_version: Optional[str] = None
+        sw_version: Optional[str] = None,
+        expire: int = 60,
     ):
         self.client = client
         self.device_id = device_id
@@ -25,12 +28,25 @@ class MQTTDevice():
         self.model = model
         self.manufacturer = manufacturer
         self.sw_version = sw_version
+        self.expire = expire
 
         self.entities: List[Entity] = []
 
+    def send_discovery(self):
+        self.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
+        self.client.publish(self.availability_topic, "online", retain=False)
+
     def register(self):
-        topic = f"homeassistant/device/{self.device_id}/config"
-        self.client.publish(topic, json.dumps(self.full_discovery_payload), retain=False)
+        self.send_discovery()
+        self.register_listener("homeassistant/status", self._handle_homeassistant_status)
+
+    @property
+    def discovery_topic(self):
+        return f"homeassistant/device/{self.device_id}/config"
+
+    @property
+    def availability_topic(self):
+        return f"netmon/{self.device_id}/availability"
 
     @property
     def full_discovery_payload(self):
@@ -47,6 +63,12 @@ class MQTTDevice():
                     ]
                 }.get("Homepage"),
             },
+            "expire_after": self.expire,
+            "availability": {
+                "topic": self.availability_topic,
+                "payload_available": "online",
+                "payload_not_available": "offline"
+            },
             "components": {
                 x.entity_id: x.entity_discovery_payload
                 for x in self.entities
@@ -62,6 +84,15 @@ class MQTTDevice():
             **({"manufacturer": self.manufacturer,} if self.manufacturer else {}),
             **({"sw_version": self.sw_version,} if self.sw_version else {}),
         }
+
+    def _handle_homeassistant_status(self, client, userdata, msg):
+        if msg.payload.decode() == "online":
+            print("Home Assistant has come Online")
+            sleep(float(randint(0,1000))/1000)
+            self.send_discovery()
+        else:
+            print("Home Assistant has gone Offline")
+
 
     def register_listener(self, topic, callback):
         self.client.subscribe(topic)
