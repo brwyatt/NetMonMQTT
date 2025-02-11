@@ -1,3 +1,4 @@
+import platform
 import subprocess
 import sys
 from netmonmqtt.mqtt.device import MQTTDevice
@@ -10,7 +11,13 @@ class NetMon(MQTTDevice):
             machine_id = f.read().strip()
         device_id = f"NetMon_{machine_id}".replace(" ", "_")
 
-        super().__init__(client, device_id, f"{site_name} NetMon ({machine_id})", "NetMon", "brwyattt")
+        super().__init__(
+            client,
+            device_id,
+            f"{site_name} NetMon ({machine_id})",
+            model=platform.system(),
+            sw_version=platform.release(),
+        )
         self.site_name = site_name
 
         self.entities.append(
