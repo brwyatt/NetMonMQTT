@@ -24,8 +24,8 @@ class NetMon(MQTTDevice):
             Entity(
                 self,
                 "Reinstall NetMon",
-                "button",
                 f"{self.device_id}_reinstall",
+                "button",
                 command_callback=self._handle_reinstall_command,
             )
         )
