@@ -20,7 +20,6 @@ class MQTTDevice():
         model: Optional[str] = None,
         manufacturer: Optional[str] = None,
         sw_version: Optional[str] = None,
-        expire: int = 60,
     ):
         self.client = client
         self.device_id = device_id
@@ -28,7 +27,6 @@ class MQTTDevice():
         self.model = model
         self.manufacturer = manufacturer
         self.sw_version = sw_version
-        self.expire = expire
 
         self.entities: List[Entity] = []
 
@@ -63,7 +61,6 @@ class MQTTDevice():
                     ]
                 }.get("Homepage"),
             },
-            "expire_after": self.expire,
             "availability": {
                 "topic": self.availability_topic,
                 "payload_available": "online",
