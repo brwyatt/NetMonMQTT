@@ -21,7 +21,13 @@ class NetMon(MQTTDevice):
         self.site_name = site_name
 
         self.entities.append(
-            Entity(self, "Reinstall NetMon", "button", f"{self.device_id}_reinstall", self._handle_reinstall_command)
+            Entity(
+                self,
+                "Reinstall NetMon",
+                "button",
+                f"{self.device_id}_reinstall",
+                command_callback=self._handle_reinstall_command,
+            )
         )
 
     def _handle_reinstall_command(self, client, userdata, msg):

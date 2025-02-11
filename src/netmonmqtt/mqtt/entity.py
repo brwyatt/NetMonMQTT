@@ -5,11 +5,20 @@ if TYPE_CHECKING:
 
 
 class Entity():
-    def __init__(self, parent: "MQTTDevice", name: str, platform: str, unique_id: str, command_callback: Optional[callable]= None):
+    def __init__(
+        self,
+        parent: "MQTTDevice",
+        name: str,
+        platform: str,
+        unique_id: str,
+        expire: int = 60,
+        command_callback: Optional[callable]= None,
+    ):
         self.parent = parent
         self.name = name
         self.platform = platform
         self.unique_id = unique_id
+        self.expire = expire
         self.command_callback = command_callback
         if self.command_callback:
             parent.register_listener(self.command_topic, self.command_callback)
@@ -34,6 +43,7 @@ class Entity():
             "state_topic": self.state_topic,
             **({"command_topic": self.command_topic,} if self.command_callback else {}),
             "unique_id": self.unique_id,
+            "expire_after": self.expire,
         }
 
     def publish_state(self, state):
