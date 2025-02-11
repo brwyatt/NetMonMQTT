@@ -18,4 +18,4 @@ def check_ping(
     except Exception as e:
         return False, 0
     
-    return result.stats_success_ratio >= min_success_ratio, result.rtt_avg
+    return result.stats_success_ratio >= min_success_ratio, result.rtt_avg * 1000  # seconds to ms

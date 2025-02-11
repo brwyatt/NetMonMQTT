@@ -17,10 +17,10 @@ def check_dns(
     try:
         result = resolve_at(server, host, query_type, lifetime=timeout)
         end = datetime.now(timezone.utc)
-        time = (end-start).microseconds/1000000
+        time = (end-start).microseconds/1000  # Convert to ms
     except Exception as e:
         end = datetime.now(timezone.utc)
-        time = (end-start).microseconds/1000000
+        time = (end-start).microseconds/1000  # Convert to ms
         return False, time
     
     if answer is not None:
