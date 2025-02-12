@@ -1,15 +1,16 @@
+import machineid
 import platform
 import subprocess
 import sys
+
 from netmonmqtt.mqtt.device import MQTTDevice
 from netmonmqtt.mqtt.entity import Entity
 
 
 class NetMon(MQTTDevice):
     def __init__(self, client, site_name):
-        with  open("/etc/machine-id", "r") as f:
-            machine_id = f.read().strip()
-        device_id = f"NetMon_{machine_id}".replace(" ", "_")
+        machine_id = machineid.id()
+        device_id = f"NetMon_{machine_id}"
 
         super().__init__(
             client,
@@ -20,7 +21,7 @@ class NetMon(MQTTDevice):
         )
         self.site_name = site_name
 
-        self.entities.append(
+        self.entities.add(
             Entity(
                 self,
                 "Reinstall NetMon",

@@ -2,9 +2,10 @@ import json
 from importlib.metadata import metadata
 from random import randint
 from time import sleep
-from typing import List, Optional
+from typing import List, Optional, Set
 from paho.mqtt.client import Client as MQTTClient
 
+from netmonmqtt.mqtt.check import Check
 from netmonmqtt.mqtt.entity import Entity
 
 
@@ -28,7 +29,8 @@ class MQTTDevice():
         self.manufacturer = manufacturer
         self.sw_version = sw_version
 
-        self.entities: List[Entity] = []
+        self.entities: Set[Entity] = set()
+        self.checks: Set[Check] = set()
 
     def send_discovery(self):
         self.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
@@ -45,6 +47,10 @@ class MQTTDevice():
     @property
     def availability_topic(self):
         return f"netmon/{self.device_id}/availability"
+
+    @property
+    def all_entities(self):
+        return self.entities.union({x for check in self.checks for x in check.entities})
 
     @property
     def full_discovery_payload(self):
@@ -68,7 +74,7 @@ class MQTTDevice():
             },
             "components": {
                 x.entity_id: x.entity_discovery_payload
-                for x in self.entities
+                for x in self.all_entities
             },
         }
 

@@ -38,6 +38,7 @@ classifiers = [
 dependencies = [
     "dnspython>=2.7.0,<3.0.0",
     "paho-mqtt>=2.1.0,<3.0.0",
+    "py-machineid>=0.7.0,<1.0.0",
     "pythonping>=1.1.0,<1.2.0",
     "pyyaml>=6.0.0,<7.0.0",
     "setuptools>=75.8.0,<76.0.0",
