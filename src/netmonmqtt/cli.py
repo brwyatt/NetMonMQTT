@@ -1,5 +1,6 @@
 
 import sys
+import threading
 from typing import List, Optional
 
 from netmonmqtt.checks.dns import check_dns
@@ -56,7 +57,18 @@ def main(args: Optional[List[str]] = None):
     client.add_connect_action(netmon.on_connect)
     client.add_disconnect_action(netmon.on_disconnect)
 
-    client.loop_forever()
+    try:
+        client.loop_forever()
+    except KeyboardInterrupt as ki:
+        print("Got keboard interrupt!")
+        client.disconnect()
+        for thread in threading.enumerate():
+            print(f"Waiting for thread stop: {thread.name}")
+            try:
+                thread.join()
+            except RuntimeError as re:
+                pass  # don't care!
+        sys.exit(0)
 
 
 if __name__ == "__main__":

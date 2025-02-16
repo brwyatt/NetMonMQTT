@@ -1,3 +1,4 @@
+import os
 import machineid
 import platform
 import subprocess
@@ -30,6 +31,26 @@ class NetMon(MQTTDevice):
                 command_callback=self._handle_reinstall_command,
             )
         )
+        self.entities.add(
+            Entity(
+                self,
+                "Restart NetMon",
+                f"{self.device_id}_restart",
+                "button",
+                command_callback=self._handle_restart_command,
+            )
+        )
+
+    def restart(self):
+        print("Restarting!")
+        self.client.disconnect()
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+        exit(0)
+
+    def _handle_restart_command(self, client, userdata, msg):
+        if msg.payload.decode() == "PRESS":
+            print("Received restart request from server")
+            self.restart()
 
     def _handle_reinstall_command(self, client, userdata, msg):
         if msg.payload.decode() == "PRESS":
@@ -45,7 +66,6 @@ class NetMon(MQTTDevice):
                     check=True,
                 )
 
-                # Might do something different, but if running as a Systemd service, this should trigger a restart
-                exit(0)
+                self.restart()
             except Exception as e:
                 print(f"Error reinstalling: {e}")

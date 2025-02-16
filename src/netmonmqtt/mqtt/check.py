@@ -1,5 +1,5 @@
 from random import randint
-from threading import Thread
+from threading import Event, Thread
 from time import sleep
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -22,7 +22,7 @@ class Check():
         self.entities = entities
         self.interval = interval
         self.jitter = jitter
-        self.do_run = False
+        self.stop_thread = Event()
         self.thread: Optional[Thread] = None
 
     def run_check(self):
@@ -34,16 +34,21 @@ class Check():
             index += 1
 
     def loop(self):
-        while self.do_run:
+        threadname = self.thread.name if self.thread is not None else "UNKNOWN"
+        print(f"Loop Started: {threadname}")
+        while not self.stop_thread.is_set():
             self.run_check()
-            sleep(self.interval + (float(randint(0, int(self.jitter * 1000))) / 1000))
+            jitter_ms = int(self.jitter * 1000)
+            self.stop_thread.wait(self.interval + (float(randint((-1 * jitter_ms), jitter_ms)) / 1000))
+        print(f"Loop Ended: {threadname}")
 
     def start(self):
         print("Check Start")
-        self.do_run = True
-        self.thread = Thread(target=self.loop).start()
+        self.stop_thread.clear()
+        self.thread = Thread(target=self.loop)
+        self.thread.start()
 
     def stop(self):
-        print("Check Start")
-        self.do_run = True
+        print("Check Stop")
+        self.stop_thread.set()
         self.thread = None
