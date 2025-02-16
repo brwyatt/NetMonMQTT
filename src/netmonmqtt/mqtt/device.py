@@ -39,6 +39,9 @@ class MQTTDevice():
     def register(self):
         self.send_discovery()
         self.register_listener("homeassistant/status", self._handle_homeassistant_status)
+        for entity in self.all_entities:
+            if entity.command_callback:
+                self.register_listener(entity.command_topic, entity.command_callback)
 
     @property
     def discovery_topic(self):
@@ -109,5 +112,7 @@ class MQTTDevice():
 
 
     def register_listener(self, topic, callback):
+        if not self.client.is_connected():
+            return
         self.client.subscribe(topic)
         self.client.message_callback_add(topic, callback)
