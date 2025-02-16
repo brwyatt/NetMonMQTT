@@ -82,6 +82,8 @@ def connect(
     client.on_disconnect = on_disconnect
     client.on_log = on_log
 
+    client.keepalive = 15
+
     if async_connect:
         client.connect_async(host, port)
     else:
