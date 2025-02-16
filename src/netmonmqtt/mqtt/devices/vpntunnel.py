@@ -1,6 +1,6 @@
 from netmonmqtt.mqtt.device import MQTTDevice
 
 
-class NetMon(MQTTDevice):
+class VPNTunnel(MQTTDevice):
     # TODO: Implement this
     pass 
