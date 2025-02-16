@@ -88,6 +88,17 @@ class MQTTDevice():
             **({"sw_version": self.sw_version,} if self.sw_version else {}),
         }
 
+    def on_connect(self):
+        if self.client.is_connected():
+            self.register()
+            for check in self.checks:
+                check.start()
+
+
+    def on_disconnect(self):
+        for check in self.checks:
+            check.stop()
+
     def _handle_homeassistant_status(self, client, userdata, msg):
         if msg.payload.decode() == "online":
             print("Home Assistant has come Online")
