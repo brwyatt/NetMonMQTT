@@ -1,0 +1,15 @@
+[Unit]
+Description=NetMon MQTT Service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/opt/NetMonMQTT
+ExecStart=/opt/NetMonMQTT/bin/netmonmqtt
+
+[Install]
+WantedBy=multi-user.target
