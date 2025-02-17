@@ -16,20 +16,20 @@ def main(args: Optional[List[str]] = None):
     if args is None:
         args = sys.argv[1:]
 
-    conf = Config()
+    config = Config(file_name="./config.yaml")
 
     client = connect(
-        conf["host"],
-        conf["port"],
-        conf["username"],
-        conf["password"],
-        secure=True,
+        config.connection.host,
+        config.connection.port,
+        config.connection.username,
+        config.connection.password,
+        secure=config.connection.secure,
         async_connect=True,
     )
 
     netmon = NetMon(
         client,
-        conf["site_name"],
+        config.site_name,
     )
     dns_8dot = Check(
         check_dns,

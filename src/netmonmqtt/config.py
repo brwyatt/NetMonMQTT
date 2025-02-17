@@ -1,16 +1,12 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 import yaml
-
 
 class Config:
     def __init__(
         self,
-        file_name: Optional[str] = "./config.yaml",
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
+        file_name: Optional[str] = None,
         site_name: Optional[str] = None,
+        connection_details: Optional[Dict[str, str]] = None,
     ):
         file_data = {}
         if file_name:
@@ -20,25 +16,41 @@ class Config:
             except FileNotFoundError:
                 pass
 
-        self._host = file_data.get("host", host)
-        self._port = file_data.get("port", port)
-        self._username = file_data.get("username", username)
-        self._password = file_data.get("password", password)
-        self._site_name = file_data.get("site_name", site_name)
+        if connection_details is None:
+            connection_details = {}
 
-        if self._host is None:
-            raise ValueError(f"Host is required, but not provided explicitly or in {file_name}")
-        if self._port is None:
-            raise ValueError(f"Port is required, but not provided explicitly or in {file_name}")
-        if self._username is None:
-            raise ValueError(f"Username is required, but not provided explicitly or in {file_name}")
-        if self._password is None:
-            raise ValueError(f"Password is required, but not provided explicitly or in {file_name}")
-        if self._site_name is None:
-            raise ValueError(f"Site Name is required, but not provided explicitly or in {file_name}")
+        self.site_name = file_data.get("site_name", site_name)
+        if self.site_name is None:
+            raise ValueError(f"Site Name is required, but not provided explicitly or in config file")
+
+        self.connection = ConnectionConfig({**file_data.get("connection", {}), **connection_details})
 
 
-    def __getitem__(self, key):
-        if not key in ["host", "port", "username", "password", "site_name"]:
-            raise KeyError(f"{key} is not a valid key")
-        return getattr(self, f"_{key}")
+class ConnectionConfig:
+    def __init__(
+        self,
+        connection_details: Optional[Dict[str, Any]] = None,
+    ):
+        file_data = {}
+        file_name = connection_details.get("file")
+        if file_name:
+            try:
+                with open(file_name, "r") as file:
+                    file_data = yaml.safe_load(file)
+            except FileNotFoundError:
+                pass
+
+        self.host = file_data.get("host", connection_details.get("host"))
+        self.port = file_data.get("port", connection_details.get("port"))
+        self.username = file_data.get("username", connection_details.get("username"))
+        self.password = file_data.get("password", connection_details.get("password"))
+        self.secure = file_data.get("secure", connection_details.get("secure", True))
+
+        if self.host is None:
+            raise ValueError(f"Host is required, but not provided explicitly or in config file")
+        if self.port is None:
+            raise ValueError(f"Port is required, but not provided explicitly or in config file")
+        if self.username is None:
+            raise ValueError(f"Username is required, but not provided explicitly or in config file")
+        if self.password is None:
+            raise ValueError(f"Password is required, but not provided explicitly or in config file")
