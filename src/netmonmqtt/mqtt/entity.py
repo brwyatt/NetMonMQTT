@@ -9,7 +9,7 @@ class Entity():
         self,
         parent: "MQTTDevice",
         name: str,
-        unique_id: str,
+        entity_id: str,
         platform: str,
         device_class: Optional[str] = None,
         unit_of_measurement: Optional[str] = None,
@@ -19,7 +19,7 @@ class Entity():
         self.parent = parent
         self.name = name
         self.platform = platform
-        self.unique_id = unique_id
+        self.entity_id = entity_id
         self.device_class = device_class
         self.unit_of_measurement = unit_of_measurement
         self.expire = expire
@@ -28,8 +28,8 @@ class Entity():
             parent.register_listener(self.command_topic, self.command_callback)
 
     @property
-    def entity_id(self):
-        return self.unique_id
+    def unique_id(self):
+        return f"{self.parent.device_id}_{self.entity_id}"
 
     @property
     def state_topic(self):
@@ -48,6 +48,7 @@ class Entity():
             **({"unit_of_measurement": self.unit_of_measurement,} if self.unit_of_measurement else {}),
             "state_topic": self.state_topic,
             **({"command_topic": self.command_topic,} if self.command_callback else {}),
+            "entity_id": self.entity_id,
             "unique_id": self.unique_id,
             "expire_after": self.expire,
         }
