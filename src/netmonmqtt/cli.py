@@ -4,12 +4,30 @@ import threading
 from typing import List, Optional
 
 from netmonmqtt.checks.dns import check_dns
+from netmonmqtt.checks.ping import check_ping
 from netmonmqtt.config import Config
 from netmonmqtt.mqtt import connect
 from netmonmqtt.mqtt.check import Check
 from netmonmqtt.mqtt.devices.netmon import NetMon
 from netmonmqtt.mqtt.entities.connectivity import ConnectivityEntity
 from netmonmqtt.mqtt.entities.latency import LatencyEntity
+
+
+def get_check(check_type: str):
+    if check_type == "dns":
+        return check_dns
+    if check_type == "ping":
+        return check_ping
+    raise ValueError(f"Invalid check type: {check_type}")
+
+
+def get_check_entities(check_type: str, netmon: NetMon, name: str, expire: int):
+    cleaned_name = name.lower().replace(" ", "_")
+    if check_type in ["dns", "ping"]:
+        return (
+            ConnectivityEntity(netmon, f"{name} Connectivity", f"{cleaned_name}_connectivity", expire=expire),
+            LatencyEntity(netmon, f"{name} Latency", f"{cleaned_name}_latency", expire=expire),
+        )
 
 
 def main(args: Optional[List[str]] = None):
@@ -31,28 +49,15 @@ def main(args: Optional[List[str]] = None):
         client,
         config.site_name,
     )
-    dns_8dot = Check(
-        check_dns,
-        ["google.com", "8.8.8.8"],
-        {"query_type": "A", "timeout": 2, "answer": None},
-        (
-            ConnectivityEntity(netmon, "8-dot Connectivity", "8_dot_connectivity"),
-            LatencyEntity(netmon, "8-dot Latency", "8_dot_latency"),
-        ),
-        interval=10,
-    )
-    netmon.checks.add(dns_8dot)
-    dns_1dot = Check(
-        check_dns,
-        ["google.com", "1.1.1.1"],
-        {"query_type": "A", "timeout": 2, "answer": None},
-        (
-            ConnectivityEntity(netmon, "1-dot Connectivity", "1_dot_connectivity"),
-            LatencyEntity(netmon, "1-dot Latency", "1_dot_latency"),
-        ),
-        interval=10,
-    )
-    netmon.checks.add(dns_1dot)
+    for site_check in config.site_checks:
+        netmon.checks.add(Check(
+            get_check(site_check.check_type),
+            site_check.args,
+            site_check.kwargs,
+            get_check_entities(site_check.check_type, netmon, site_check.name, site_check.expire),
+            interval=site_check.interval,
+            jitter=site_check.jitter,
+        ))
 
     client.add_connect_action(netmon.on_connect)
     client.add_disconnect_action(netmon.on_disconnect)

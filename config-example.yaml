@@ -4,3 +4,20 @@ connection:
   port: 1883
   username: example_user
   password: supersecret
+  secure: False
+site_checks:
+  - check_type: "dns"
+    name: "8-dot"
+    args:
+      - "google.com"
+      - "8.8.8.8"
+    kwargs:
+      timeout: 2
+    interval: 15
+  - check_type: "dns"
+    name: "1-dot"
+    kwargs:
+      host: "google.com"
+      server: "1.1.1.1"
+      timeout: 2
+    interval: 15

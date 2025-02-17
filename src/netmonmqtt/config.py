@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 import yaml
 
 class Config:
@@ -24,6 +24,7 @@ class Config:
             raise ValueError(f"Site Name is required, but not provided explicitly or in config file")
 
         self.connection = ConnectionConfig({**file_data.get("connection", {}), **connection_details})
+        self.site_checks = [CheckConfig(**x) for x in file_data.get("site_checks", [])]
 
 
 class ConnectionConfig:
@@ -54,3 +55,25 @@ class ConnectionConfig:
             raise ValueError(f"Username is required, but not provided explicitly or in config file")
         if self.password is None:
             raise ValueError(f"Password is required, but not provided explicitly or in config file")
+
+
+class CheckConfig:
+    def __init__(
+        self,
+        check_type: str,
+        name: str,
+        args: Optional[List[Any]] = None,
+        kwargs: Optional[Dict[str, Any]] = None,
+        interval: Optional[int] = None,
+        jitter: Optional[float] = None,
+        expire: Optional[int] = None,
+    ):
+        if check_type not in ["dns", "ping"]:
+            raise ValueError(f"Invalid check type: {check_type}")
+        self.check_type = check_type
+        self.name = name
+        self.args = args if args is not None else []
+        self.kwargs = kwargs if kwargs is not None else {}
+        self.interval = interval if interval is not None else 60
+        self.jitter = jitter if jitter is not None else 0.5
+        self.expire = expire if expire is not None else int((self.interval + self.jitter) * 2)
