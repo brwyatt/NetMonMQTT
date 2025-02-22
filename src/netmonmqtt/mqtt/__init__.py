@@ -1,3 +1,5 @@
+from random import randint
+from time import sleep
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 import machineid
 from paho.mqtt.client import Client
@@ -32,8 +34,12 @@ def on_log(client, userdata, level, buf):
     print(f"MQTT: [{level}]: {buf}")
 
 
-class MQTTClient(Client):
+class HAMQTTClient(Client):
     extra_actions: Dict[str, List[Action]] = {}
+
+    @property
+    def availability_topic(self):
+        return f"netmon/{self._client_id}/availability"
 
     def add_connect_action(self, action: Union[Callable, Action]):
         action = action if action is Action else Action(action, [], {})
@@ -64,7 +70,7 @@ def connect(
     if client_id is None:
         client_id = f"NetMon-{machineid.id()}"
 
-    client = MQTTClient(
+    client = HAMQTTClient(
         client_id=client_id,
         callback_api_version=CallbackAPIVersion.VERSION2,
         clean_session=True,
@@ -83,6 +89,8 @@ def connect(
     client.on_log = on_log
 
     client.keepalive = 15
+
+    client.will_set(client.availability_topic, "offline", retain=False)
 
     if async_connect:
         client.connect_async(host, port)

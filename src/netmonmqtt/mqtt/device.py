@@ -5,6 +5,7 @@ from time import sleep
 from typing import List, Optional, Set
 from paho.mqtt.client import Client as MQTTClient
 
+from netmonmqtt.mqtt import HAMQTTClient
 from netmonmqtt.mqtt.check import Check
 from netmonmqtt.mqtt.entity import Entity
 
@@ -15,12 +16,14 @@ origin_data = metadata("NetMonMQTT")
 class MQTTDevice():
     def __init__(
         self,
-        client: MQTTClient,
+        client: HAMQTTClient,
         device_id: str,
         name: str,
         model: Optional[str] = None,
         manufacturer: Optional[str] = None,
         sw_version: Optional[str] = None,
+        set_availability: bool = True,
+        availability_topic: Optional[str] = None,
     ):
         self.client = client
         self.device_id = device_id
@@ -28,13 +31,16 @@ class MQTTDevice():
         self.model = model
         self.manufacturer = manufacturer
         self.sw_version = sw_version
+        self.set_availability = set_availability
+        self._availability_topic = availability_topic
 
         self.entities: Set[Entity] = set()
         self.checks: Set[Check] = set()
 
     def send_discovery(self):
         self.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
-        self.client.publish(self.availability_topic, "online", retain=False)
+        if self.set_availability:
+            self.client.publish(self.availability_topic, "online", retain=True)
 
     def register(self):
         self.send_discovery()
@@ -49,6 +55,8 @@ class MQTTDevice():
 
     @property
     def availability_topic(self):
+        if self._availability_topic is not None:
+            return self._availability_topic
         return f"netmon/{self.device_id}/availability"
 
     @property
@@ -70,11 +78,13 @@ class MQTTDevice():
                     ]
                 }.get("Homepage"),
             },
-            "availability": {
-                "topic": self.availability_topic,
-                "payload_available": "online",
-                "payload_not_available": "offline"
-            },
+            **({
+                "availability": {
+                    "topic": self.availability_topic,
+                    "payload_available": "online",
+                    "payload_not_available": "offline"
+                }
+            } if self.set_availability else {}),
             "components": {
                 x.entity_id: x.entity_discovery_payload
                 for x in self.all_entities
@@ -103,7 +113,7 @@ class MQTTDevice():
             check.stop()
 
     def _handle_homeassistant_status(self, client, userdata, msg):
-        if msg.payload.decode() == "online":
+        if msg.payload.decode().lower() == "online":
             print("Home Assistant has come Online")
             sleep(float(randint(0,1000))/1000)
             self.send_discovery()

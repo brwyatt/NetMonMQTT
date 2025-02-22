@@ -1,15 +1,22 @@
 import os
+from typing import Optional
 import machineid
 import platform
 import subprocess
 import sys
 
+from netmonmqtt.mqtt import HAMQTTClient
 from netmonmqtt.mqtt.device import MQTTDevice
 from netmonmqtt.mqtt.entity import Entity
 
 
 class NetMon(MQTTDevice):
-    def __init__(self, client, site_name):
+    def __init__(
+        self,
+        client: HAMQTTClient,
+        site_name: str,
+        availability_topic: Optional[str] = None,
+    ):
         machine_id = machineid.id()
         device_id = f"NetMon_{machine_id}"
 
@@ -19,6 +26,7 @@ class NetMon(MQTTDevice):
             f"{site_name} NetMon ({machine_id})",
             model=platform.system(),
             sw_version=platform.release(),
+            availability_topic=availability_topic,
         )
         self.site_name = site_name
 

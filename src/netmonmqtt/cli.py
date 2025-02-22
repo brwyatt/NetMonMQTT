@@ -48,6 +48,7 @@ def main(args: Optional[List[str]] = None):
     netmon = NetMon(
         client,
         config.site_name,
+        availability_topic=client.availability_topic,
     )
     for site_check in config.site_checks:
         netmon.checks.add(Check(
