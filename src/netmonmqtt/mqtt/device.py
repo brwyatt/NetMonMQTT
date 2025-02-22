@@ -39,12 +39,9 @@ class MQTTDevice():
 
     def send_discovery(self):
         self.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
-        if self.set_availability:
-            self.client.publish(self.availability_topic, "online", retain=True)
 
     def register(self):
         self.send_discovery()
-        self.register_listener("homeassistant/status", self._handle_homeassistant_status)
         for entity in self.all_entities:
             if entity.command_callback:
                 self.register_listener(entity.command_topic, entity.command_callback)
@@ -111,15 +108,6 @@ class MQTTDevice():
     def on_disconnect(self):
         for check in self.checks:
             check.stop()
-
-    def _handle_homeassistant_status(self, client, userdata, msg):
-        if msg.payload.decode().lower() == "online":
-            print("Home Assistant has come Online")
-            sleep(float(randint(0,1000))/1000)
-            self.send_discovery()
-        else:
-            print("Home Assistant has gone Offline")
-
 
     def register_listener(self, topic, callback):
         if not self.client.is_connected():
