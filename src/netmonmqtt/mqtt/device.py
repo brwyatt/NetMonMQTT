@@ -36,9 +36,13 @@ class MQTTDevice():
 
         self.entities: Set[Entity] = set()
         self.checks: Set[Check] = set()
+        self.independant_entities: Set[Check] = set()
+        self.independant_checks: Set[Check] = set()
 
     def send_discovery(self):
         self.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
+        for entity in self.all_independant_entities:
+            entity.send_discovery()
 
     def register(self):
         self.send_discovery()
@@ -55,6 +59,10 @@ class MQTTDevice():
         if self._availability_topic is not None:
             return self._availability_topic
         return f"netmon/{self.device_id}/availability"
+
+    @property
+    def all_independant_entities(self):
+        return self.independant_entities.union({x for check in self.independant_checks for x in check.entities})
 
     @property
     def all_entities(self):
@@ -101,12 +109,12 @@ class MQTTDevice():
     def on_connect(self):
         if self.client.is_connected():
             self.register()
-            for check in self.checks:
+            for check in self.checks.union(self.independant_checks):
                 check.start()
 
 
     def on_disconnect(self):
-        for check in self.checks:
+        for check in self.checks.union(self.independant_checks):
             check.stop()
 
     def register_listener(self, topic, callback):

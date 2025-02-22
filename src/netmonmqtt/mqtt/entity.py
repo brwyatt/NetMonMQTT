@@ -1,7 +1,12 @@
+from importlib.metadata import metadata
+import json
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from netmonmqtt.mqtt.device import MQTTDevice
+
+
+origin_data = metadata("NetMonMQTT")
 
 
 class Entity():
@@ -27,6 +32,9 @@ class Entity():
         if self.command_callback:
             parent.register_listener(self.command_topic, self.command_callback)
 
+    def send_discovery(self):
+        self.parent.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
+
     @property
     def unique_id(self):
         return f"{self.parent.device_id}_{self.entity_id}"
@@ -38,6 +46,28 @@ class Entity():
     @property
     def command_topic(self):
         return f"netmon/{self.parent.device_id}/{self.entity_id}/command"
+
+    @property
+    def discovery_topic(self):
+        return f"homeassistant/{self.platform}/{self.parent.device_id}/{self.entity_id}/config"
+
+    @property
+    def full_discovery_payload(self):
+        return {
+            "device": self.parent.device_discovery_payload,
+            "origin": {
+                "name": "NetMonMQTT",
+                "sw_version": origin_data.get("Version", "unknown"),
+                "url": {
+                    x[0]: x[1]
+                    for x in [
+                        x.split(", ")
+                        for x in origin_data.get_all("Project-Url", [])
+                    ]
+                }.get("Homepage"),
+            },
+            **self.entity_discovery_payload,
+        }
 
     @property
     def entity_discovery_payload(self):

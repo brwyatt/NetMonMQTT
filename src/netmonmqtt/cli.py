@@ -9,6 +9,7 @@ from netmonmqtt.config import Config
 from netmonmqtt.mqtt import connect
 from netmonmqtt.mqtt.check import Check
 from netmonmqtt.mqtt.devices.netmon import NetMon
+from netmonmqtt.mqtt.devices.vpntunnel import VPNTunnel
 from netmonmqtt.mqtt.entities.connectivity import ConnectivityEntity
 from netmonmqtt.mqtt.entities.latency import LatencyEntity
 
@@ -23,9 +24,14 @@ def get_check(check_type: str):
 
 def get_check_entities(check_type: str, netmon: NetMon, name: str, expire: int):
     cleaned_name = name.lower().replace(" ", "_")
-    if check_type in ["dns", "ping"]:
+    if check_type == "dns":
         return (
-            ConnectivityEntity(netmon, f"{name} Connectivity", f"{cleaned_name}_connectivity", expire=expire),
+            ConnectivityEntity(netmon, f"{name} DNS Resolution", f"{cleaned_name}_dns_resolution", expire=expire),
+            LatencyEntity(netmon, f"{name} DNS Lookup Latency", f"{cleaned_name}_dns_latency", expire=expire),
+        )
+    if check_type == "ping":
+        return (
+            ConnectivityEntity(netmon, f"{name} Reachability", f"{cleaned_name}_reachability", expire=expire),
             LatencyEntity(netmon, f"{name} Latency", f"{cleaned_name}_latency", expire=expire),
         )
 
@@ -62,6 +68,33 @@ def main(args: Optional[List[str]] = None):
 
     client.add_connect_action(netmon.on_connect)
     client.add_disconnect_action(netmon.on_disconnect)
+
+    for tunnel_config in config.tunnels:
+        tunnel = VPNTunnel(
+            client,
+            tunnel_config.tunnel_id,
+        )
+        if tunnel_config.ping_check is not None:
+            tunnel.independant_checks.add(Check(
+                get_check(tunnel_config.ping_check.check_type),
+                tunnel_config.ping_check.args,
+                tunnel_config.ping_check.kwargs,
+                get_check_entities(tunnel_config.ping_check.check_type, tunnel, tunnel_config.ping_check.name, tunnel_config.ping_check.expire),
+                interval=tunnel_config.ping_check.interval,
+                jitter=tunnel_config.ping_check.jitter,
+            ))
+        if tunnel_config.dns_check is not None:
+            tunnel.independant_checks.add(Check(
+                get_check(tunnel_config.dns_check.check_type),
+                tunnel_config.dns_check.args,
+                tunnel_config.dns_check.kwargs,
+                get_check_entities(tunnel_config.dns_check.check_type, tunnel, tunnel_config.dns_check.name, tunnel_config.dns_check.expire),
+                interval=tunnel_config.dns_check.interval,
+                jitter=tunnel_config.dns_check.jitter,
+            ))
+
+        client.add_connect_action(tunnel.on_connect)
+        client.add_disconnect_action(tunnel.on_disconnect)
 
     try:
         client.loop_forever()
