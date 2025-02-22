@@ -21,3 +21,19 @@ site_checks:
       server: "1.1.1.1"
       timeout: 2
     interval: 15
+tunnels:
+  "1":  # site-local WAN interface
+    Site B:
+      "1":  # remote site WAN interface
+        remote_ip: 10.0.2.5
+        ping:
+          enable: True
+          interval: 15
+        dns:  # optional
+          enable: True
+          interval: 15
+          kwargs:
+            server: 10.0.2.5  # defaults to remote_ip
+            host: "test.siteb.example.net"
+            query_type: "TXT"
+            answer: "SUCCESS!"
