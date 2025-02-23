@@ -10,7 +10,7 @@ def check_dns(
     timeout: int = 2,
     answer: Optional[Union[str, List[str]]] = None
 ) -> Tuple[bool, float]:
-    if answer is str:
+    if type(answer) is str:
         answer = [answer]
 
     start = datetime.now(timezone.utc)

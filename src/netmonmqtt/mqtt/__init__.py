@@ -51,7 +51,7 @@ class HAMQTTClient(Client):
 
     @property
     def availability_topic(self):
-        return f"netmon/{self._client_id}/availability"
+        return f"netmon/{str(self._client_id, 'utf-8')}/availability"
 
     def add_connect_action(self, action: Union[Callable, Action]):
         action = action if action is Action else Action(action, [], {})
