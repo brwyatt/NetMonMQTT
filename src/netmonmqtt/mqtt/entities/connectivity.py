@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from netmonmqtt.mqtt.entity import Entity
 
 if TYPE_CHECKING:
@@ -12,6 +12,7 @@ class ConnectivityEntity(Entity):
         name: str,
         unique_id: str,
         expire: int = 60,
+        via_device: Optional["MQTTDevice"] = None,
     ):
         super().__init__(
             parent,
@@ -20,4 +21,5 @@ class ConnectivityEntity(Entity):
             "binary_sensor",
             device_class="connectivity",
             expire=expire,
+            via_device=via_device,
         )

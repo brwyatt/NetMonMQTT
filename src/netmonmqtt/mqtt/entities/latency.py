@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from netmonmqtt.mqtt.entity import Entity
 
 if TYPE_CHECKING:
@@ -13,6 +13,7 @@ class LatencyEntity(Entity):
         unique_id: str,
         expire: int = 60,
         unit_of_measurement: str = "ms",
+        via_device: Optional["MQTTDevice"] = None,
     ):
         super().__init__(
             parent,
@@ -22,4 +23,5 @@ class LatencyEntity(Entity):
             device_class="duration",
             unit_of_measurement=unit_of_measurement,
             expire=expire,
+            via_device=via_device,
         )

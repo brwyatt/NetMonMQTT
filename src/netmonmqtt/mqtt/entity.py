@@ -20,6 +20,7 @@ class Entity():
         unit_of_measurement: Optional[str] = None,
         expire: int = 60,
         command_callback: Optional[callable]= None,
+        via_device: Optional["MQTTDevice"] = None,
     ):
         self.parent = parent
         self.name = name
@@ -31,6 +32,7 @@ class Entity():
         self.command_callback = command_callback
         if self.command_callback:
             parent.register_listener(self.command_topic, self.command_callback)
+        self.via_device = via_device
 
     def send_discovery(self):
         self.parent.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
@@ -54,7 +56,7 @@ class Entity():
     @property
     def full_discovery_payload(self):
         return {
-            "device": self.parent.device_discovery_payload,
+            "device": {**self.parent.device_discovery_payload, **({"via_device": self.via_device.device_id,} if self.via_device else {})},
             "origin": {
                 "name": "NetMonMQTT",
                 "sw_version": origin_data.get("Version", "unknown"),

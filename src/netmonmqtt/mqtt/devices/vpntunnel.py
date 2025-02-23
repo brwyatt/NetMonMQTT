@@ -8,6 +8,7 @@ class VPNTunnel(MQTTDevice):
         self,
         client: HAMQTTClient,
         tunnel_name: str,
+        via_device: Optional["MQTTDevice"] = None,
     ):
         device_id = f"NetMon_{tunnel_name}".replace(" ", "_").replace("/", "_")
 
@@ -17,5 +18,6 @@ class VPNTunnel(MQTTDevice):
             f"S2S Tunnel {tunnel_name}",
             model="Site-to-Site VPN",
             set_availability=False,
+            via_device=via_device,
         )
         self.tunnel_name = tunnel_name

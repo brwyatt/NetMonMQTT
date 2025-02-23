@@ -24,6 +24,7 @@ class MQTTDevice():
         sw_version: Optional[str] = None,
         set_availability: bool = True,
         availability_topic: Optional[str] = None,
+        via_device: Optional["MQTTDevice"] = None,
     ):
         self.client = client
         self.device_id = device_id
@@ -33,6 +34,7 @@ class MQTTDevice():
         self.sw_version = sw_version
         self.set_availability = set_availability
         self._availability_topic = availability_topic
+        self.via_device = via_device
 
         self.entities: Set[Entity] = set()
         self.checks: Set[Check] = set()
@@ -104,6 +106,7 @@ class MQTTDevice():
             **({"model": self.model,} if self.model else {}),
             **({"manufacturer": self.manufacturer,} if self.manufacturer else {}),
             **({"sw_version": self.sw_version,} if self.sw_version else {}),
+            **({"via_device": self.via_device.device_id,} if self.via_device else {}),
         }
 
     def on_connect(self):
