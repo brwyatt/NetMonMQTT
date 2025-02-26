@@ -17,6 +17,7 @@ class Entity():
         entity_id: str,
         platform: str,
         device_class: Optional[str] = None,
+        state_class: Optional[str] = None,
         unit_of_measurement: Optional[str] = None,
         expire: int = 60,
         command_callback: Optional[callable]= None,
@@ -27,6 +28,7 @@ class Entity():
         self.platform = platform
         self.entity_id = entity_id
         self.device_class = device_class
+        self.state_class = state_class
         self.unit_of_measurement = unit_of_measurement
         self.expire = expire
         self.command_callback = command_callback
@@ -77,6 +79,7 @@ class Entity():
             "name": self.name,
             "platform": self.platform,
             **({"device_class": self.device_class,} if self.device_class else {}),
+            **({"state_class": self.state_class,} if self.state_class else {}),
             **({"unit_of_measurement": self.unit_of_measurement,} if self.unit_of_measurement else {}),
             "state_topic": self.state_topic,
             **({"command_topic": self.command_topic,} if self.command_callback else {}),
