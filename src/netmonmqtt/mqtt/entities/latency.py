@@ -21,6 +21,7 @@ class LatencyEntity(Entity):
             unique_id,
             "sensor",
             device_class="duration",
+            state_class="measurement",
             unit_of_measurement=unit_of_measurement,
             expire=expire,
             via_device=via_device,
