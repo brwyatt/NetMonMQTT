@@ -16,6 +16,14 @@ def check_ping(
     try:
         result = ping(target, timeout=timeout, count=count)
     except Exception as e:
-        return False, 0
-    
-    return result.stats_success_ratio >= min_success_ratio, result.rtt_avg * 1000  # seconds to ms
+        return False, None
+
+    success_average_time = (
+        None
+        if result.stats_packets_returned == 0
+        else
+        # Remove timeouts from average
+        (result.rtt_avg_ms-(float(timeout*1000*result.stats_packets_lost)/count))*(float(count)/result.stats_packets_returned)
+    )
+
+    return result.stats_success_ratio >= min_success_ratio, success_average_time
