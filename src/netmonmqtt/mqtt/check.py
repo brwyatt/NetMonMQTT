@@ -44,8 +44,9 @@ class Check():
 
     def start(self):
         print("Check Start")
-        if self.thread is not None:
-            self.stop()
+        if self.thread is not None and self.thread.is_alive():
+            print("Thread already running!")
+            return
         self.stop_thread.clear()
         self.thread = Thread(target=self.loop)
         self.thread.start()
