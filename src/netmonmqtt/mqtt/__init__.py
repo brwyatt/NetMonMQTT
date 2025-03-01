@@ -20,6 +20,7 @@ def call_actions(client: Client, action_class: str):
 def handle_homeassistant_status(client, userdata, msg):
     if msg.payload.decode().lower() == "online":
         print("Home Assistant has come Online")
+        client.publish(client.availability_topic, "online", retain=False)
         call_actions(client, "connect")
     else:
         print("Home Assistant has gone Offline")
@@ -32,7 +33,7 @@ def on_connect(client: "HAMQTTClient", userdata, flags, rc, properties):
         call_actions(client, "connect")
         client.subscribe("homeassistant/status")
         client.message_callback_add("homeassistant/status", handle_homeassistant_status)
-        client.publish(client.availability_topic, "online", retain=True)
+        client.publish(client.availability_topic, "online", retain=False)
     else:
         print(f"Connection failed! Code: {rc}")
 
@@ -106,7 +107,7 @@ def connect(
 
     client.keepalive = 15
 
-    client.will_set(client.availability_topic, "offline", retain=False)
+    # client.will_set(client.availability_topic, "offline", retain=False)
 
     if async_connect:
         client.connect_async(host, port)
