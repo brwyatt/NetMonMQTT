@@ -7,7 +7,7 @@ def check_ping(
     timeout: int = 2,
     count: int = 1,
     min_success_ratio: float = 1,
-) -> Tuple[bool, float]:
+) -> Tuple[bool, float, float]:
     if min_success_ratio > 1:
         min_success_ratio = 1
     elif min_success_ratio < 0:
@@ -16,7 +16,7 @@ def check_ping(
     try:
         result = ping(target, timeout=timeout, count=count)
     except Exception as e:
-        return False, None
+        return False, None, 0
 
     success_average_time = (
         None
@@ -26,4 +26,4 @@ def check_ping(
         (result.rtt_avg_ms-(float(timeout*1000*result.stats_packets_lost)/count))*(float(count)/result.stats_packets_returned)
     )
 
-    return result.stats_success_ratio >= min_success_ratio, success_average_time
+    return result.stats_success_ratio >= min_success_ratio, success_average_time, result.stats_success_ratio * 100

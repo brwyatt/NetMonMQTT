@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 from netmonmqtt.checks.ping import check_ping
 from netmonmqtt.mqtt.check import Check
 from netmonmqtt.mqtt.device import MQTTDevice
+from netmonmqtt.mqtt.entities.availability import AvailabilityEntity
 from netmonmqtt.mqtt.entities.connectivity import ConnectivityEntity
 from netmonmqtt.mqtt.entities.latency import LatencyEntity
 
@@ -43,6 +44,15 @@ class PingCheck(Check):
                 expire=expire,
                 via_device=parent.via_device
             ),
+            AvailabilityEntity(
+                parent,
+                f"{self.name} Availability",
+                f"{self.entity_id}_Availability",
+                state_topic=self.state_topic,
+                value_template="{{ value_json.availability }}",
+                expire=expire,
+                via_device=parent.via_device
+            ),
         )
         super().__init__(check_ping, check_args, check_kwargs, entities, interval, jitter)
 
@@ -61,6 +71,7 @@ class PingCheck(Check):
             json.dumps({
                 "reachable": "ON" if results[0] else "OFF",
                 "latency": results[1],
+                "availability": results[2],
             }),
             retain=False,
         )
