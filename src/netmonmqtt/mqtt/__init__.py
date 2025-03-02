@@ -12,39 +12,14 @@ class Action(NamedTuple):
     kwargs: Dict[str, Any]
 
 
-def call_actions(client: Client, action_class: str):
-    for action in client.extra_actions.get(action_class, []):
-        action.action(*action.args, **action.kwargs)
-
-
-def handle_homeassistant_status(client, userdata, msg):
+def handle_homeassistant_status(client: "HAMQTTClient", userdata, msg):
     if msg.payload.decode().lower() == "online":
         print("Home Assistant has come Online")
         client.publish(client.availability_topic, "online", retain=False)
-        call_actions(client, "connect")
+        client.call_actions("connect")
     else:
         print("Home Assistant has gone Offline")
-        call_actions(client, "disconnect")
-
-
-def on_connect(client: "HAMQTTClient", userdata, flags, rc, properties):
-    if rc == 0:
-        print("Connected!")
-        call_actions(client, "connect")
-        client.subscribe("homeassistant/status")
-        client.message_callback_add("homeassistant/status", handle_homeassistant_status)
-        client.publish(client.availability_topic, "online", retain=False)
-    else:
-        print(f"Connection failed! Code: {rc}")
-
-
-def on_disconnect(client: "HAMQTTClient", userdata, flags, rc, properties):
-    print(f"Disconnected! Code: {rc}")
-    call_actions(client, "disconnect")
-
-
-def on_log(client, userdata, level, buf):
-    print(f"MQTT: [{level}]: {buf}")
+        client.call_actions("disconnect")
 
 
 class HAMQTTClient(Client):
@@ -71,6 +46,27 @@ class HAMQTTClient(Client):
     def disconnect(self, *args, **kwargs):
         self.publish(self.availability_topic, "offline", retain=False)
         super().disconnect(*args, **kwargs)
+
+    def call_actions(self, action_class: str):
+        for action in self.extra_actions.get(action_class, []):
+            action.action(*action.args, **action.kwargs)
+
+    def on_connect(self, client: "HAMQTTClient", userdata, flags, rc, properties):
+        if rc == 0:
+            print("Connected!")
+            client.call_actions("connect")
+            client.subscribe("homeassistant/status")
+            client.message_callback_add("homeassistant/status", handle_homeassistant_status)
+            client.publish(client.availability_topic, "online", retain=False)
+        else:
+            print(f"Connection failed! Code: {rc}")
+
+    def on_disconnect(self, client: "HAMQTTClient", userdata, flags, rc, properties):
+        print(f"Disconnected! Code: {rc}")
+        client.call_actions("disconnect")
+
+    def on_log(self, client: "HAMQTTClient", userdata, level, buf):
+        print(f"MQTT: [{level}]: {buf}")
 
 
 def connect(
@@ -100,10 +96,6 @@ def connect(
         "connect": [x if x is Action else Action(x, [], {}) for x in connect_actions] if connect_actions else [],
         "disconnect": [x if x is Action else Action(x, [], {}) for x in disconnect_actions] if disconnect_actions else []
     }
-
-    client.on_connect = on_connect
-    client.on_disconnect = on_disconnect
-    client.on_log = on_log
 
     client.keepalive = 15
 
