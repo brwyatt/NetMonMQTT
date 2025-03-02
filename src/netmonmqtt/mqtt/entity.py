@@ -19,6 +19,8 @@ class Entity():
         device_class: Optional[str] = None,
         state_class: Optional[str] = None,
         unit_of_measurement: Optional[str] = None,
+        state_topic: Optional[str] = None,
+        value_template: Optional[str] = None,
         expire: int = 60,
         command_callback: Optional[callable]= None,
         via_device: Optional["MQTTDevice"] = None,
@@ -30,6 +32,8 @@ class Entity():
         self.device_class = device_class
         self.state_class = state_class
         self.unit_of_measurement = unit_of_measurement
+        self._state_topic = state_topic
+        self.value_template = value_template
         self.expire = expire
         self.command_callback = command_callback
         if self.command_callback:
@@ -45,6 +49,8 @@ class Entity():
 
     @property
     def state_topic(self):
+        if self._state_topic is not None:
+            return self._state_topic
         return f"netmon/{self.parent.device_id}/{self.entity_id}/state"
 
     @property
@@ -82,6 +88,7 @@ class Entity():
             **({"state_class": self.state_class,} if self.state_class else {}),
             **({"unit_of_measurement": self.unit_of_measurement,} if self.unit_of_measurement else {}),
             "state_topic": self.state_topic,
+            **({"value_template": self.value_template,} if self.value_template else {}),
             **({"command_topic": self.command_topic,} if self.command_callback else {}),
             "entity_id": self.entity_id,
             "unique_id": self.unique_id,

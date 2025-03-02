@@ -11,6 +11,8 @@ class ConnectivityEntity(Entity):
         parent: "MQTTDevice",
         name: str,
         unique_id: str,
+        state_topic: Optional[str] = None,
+        value_template: Optional[str] = None,
         expire: int = 60,
         via_device: Optional["MQTTDevice"] = None,
     ):
@@ -20,6 +22,8 @@ class ConnectivityEntity(Entity):
             unique_id,
             "binary_sensor",
             device_class="connectivity",
+            state_topic=state_topic,
+            value_template=value_template,
             expire=expire,
             via_device=via_device,
         )

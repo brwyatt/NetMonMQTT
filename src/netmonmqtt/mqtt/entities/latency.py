@@ -11,8 +11,10 @@ class LatencyEntity(Entity):
         parent: "MQTTDevice",
         name: str,
         unique_id: str,
-        expire: int = 60,
         unit_of_measurement: str = "ms",
+        state_topic: Optional[str] = None,
+        value_template: Optional[str] = None,
+        expire: int = 60,
         via_device: Optional["MQTTDevice"] = None,
     ):
         super().__init__(
@@ -23,6 +25,8 @@ class LatencyEntity(Entity):
             device_class="duration",
             state_class="measurement",
             unit_of_measurement=unit_of_measurement,
+            state_topic=state_topic,
+            value_template=value_template,
             expire=expire,
             via_device=via_device,
         )
