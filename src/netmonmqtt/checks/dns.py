@@ -21,7 +21,7 @@ def check_dns(
     except Exception as e:
         end = datetime.now(timezone.utc)
         time = (end-start).microseconds/1000  # Convert to ms
-        return False, time
+        return False, None
     
     if answer is not None:
         records = [x.to_text() for x in result]
@@ -34,4 +34,4 @@ def check_dns(
         if len(result) > 0:
             return True, time
     
-    return False, time
+    return False, None
