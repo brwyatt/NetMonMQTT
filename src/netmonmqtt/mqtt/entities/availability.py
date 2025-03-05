@@ -35,5 +35,5 @@ class AvailabilityEntity(Entity):
     def entity_discovery_payload(self):
         return {
             **super().entity_discovery_payload,
-            "force_update": true,
+            "force_update": True,
         }
