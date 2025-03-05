@@ -30,3 +30,10 @@ class AvailabilityEntity(Entity):
             expire=expire,
             via_device=via_device,
         )
+
+    @property
+    def entity_discovery_payload(self):
+        return {
+            **super().entity_discovery_payload,
+            "force_update": true,
+        }
