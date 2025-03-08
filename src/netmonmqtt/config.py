@@ -84,7 +84,7 @@ class CheckConfig:
         expire: Optional[int] = None,
         defaults: Optional[Dict[str, Any]] = None,
     ):
-        if check_type not in ["dns", "ping"]:
+        if check_type not in ["dns", "ping", "route"]:
             raise ValueError(f"Invalid check type: {check_type}")
         if defaults is None:
             defaults = {}

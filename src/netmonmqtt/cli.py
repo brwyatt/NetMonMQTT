@@ -3,18 +3,13 @@ import sys
 import threading
 from typing import List, Optional
 
-from netmonmqtt.checks.dns import check_dns
-from netmonmqtt.checks.ping import check_ping
 from netmonmqtt.config import Config
 from netmonmqtt.mqtt import connect
-from netmonmqtt.mqtt.check import Check
 from netmonmqtt.mqtt.checks.dns import DNSCheck
 from netmonmqtt.mqtt.checks.ping import PingCheck
-from netmonmqtt.mqtt.device import MQTTDevice
+from netmonmqtt.mqtt.checks.route import RouteCheck
 from netmonmqtt.mqtt.devices.netmon import NetMon
 from netmonmqtt.mqtt.devices.vpntunnel import VPNTunnel
-from netmonmqtt.mqtt.entities.connectivity import ConnectivityEntity
-from netmonmqtt.mqtt.entities.latency import LatencyEntity
 
 
 def get_check(check_type: str):
@@ -22,6 +17,8 @@ def get_check(check_type: str):
         return DNSCheck
     if check_type == "ping":
         return PingCheck
+    if check_type == "route":
+        return RouteCheck
     raise ValueError(f"Invalid check type: {check_type}")
 
 
