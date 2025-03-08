@@ -69,6 +69,15 @@ netmonmqtt = "netmonmqtt.cli:main"
 requires = ["setuptools>=50.0.0,<76.0.0"]
 build-backend = "setuptools.build_meta"  # Specifies the backend to use for building the distribution
 
+[tool.pytest.ini_options]
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
+pythonpath = [
+    "src",
+]
+
 [tool.black]
 line-length = 79
 include = '\.pyi?$'
