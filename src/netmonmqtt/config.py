@@ -24,8 +24,10 @@ class Config:
         if self.site_name is None:
             raise ValueError(f"Site Name is required, but not provided explicitly or in config file")
 
+        self.check_defaults = file_data.get("check_defaults", {})
+
         self.connection = ConnectionConfig({**file_data.get("connection", {}), **connection_details})
-        self.site_checks = [CheckConfig(**x) for x in file_data.get("site_checks", [])]
+        self.site_checks = [CheckConfig(**x, defaults=self.check_defaults.get(x.get("check_type"), {})) for x in file_data.get("site_checks", [])]
         self.tunnels: List[TunnelConfig] = []
         for local_interface, remote_sites in file_data.get("tunnels", {}).items():
             for remote_site_name, remote_interfaces in remote_sites.items():
@@ -36,6 +38,7 @@ class Config:
                         remote_site_name=remote_site_name,
                         remote_interface=remote_interface,
                         data=tunnel_data,
+                        check_defaults=self.check_defaults,
                     ))
 
 
@@ -79,16 +82,19 @@ class CheckConfig:
         interval: Optional[int] = None,
         jitter: Optional[float] = None,
         expire: Optional[int] = None,
+        defaults: Optional[Dict[str, Any]] = None,
     ):
         if check_type not in ["dns", "ping"]:
             raise ValueError(f"Invalid check type: {check_type}")
+        if defaults is None:
+            defaults = {}
         self.check_type = check_type
         self.name = name
-        self.args = args if args is not None else []
-        self.kwargs = kwargs if kwargs is not None else {}
-        self.interval = interval if interval is not None else 60
-        self.jitter = jitter if jitter is not None else 0.5
-        self.expire = expire if expire is not None else int((self.interval + self.jitter) * 2)
+        self.args = args if args is not None else defaults.get("args", [])
+        self.kwargs = {**kwargs, **defaults.get("kwargs", {})} if kwargs is not None else defaults.get("kwargs", {})
+        self.interval = interval if interval is not None else defaults.get("interval", 60)
+        self.jitter = jitter if jitter is not None else defaults.get("jitter", 0.5)
+        self.expire = expire if expire is not None else defaults.get("expire", int((self.interval + self.jitter) * 2))
 
 
 class TunnelConfig:
@@ -99,11 +105,14 @@ class TunnelConfig:
         remote_site_name: str,
         remote_interface: str,
         data: Dict[str, any],
+        check_defaults: Optional[Dict[str, Any]] = None,
     ):
         self.local_site_name = local_site_name
         self.local_interface = local_interface
         self.remote_site_name = remote_site_name
         self.remote_interface = remote_interface
+        if check_defaults is None:
+            check_defaults = {}
 
         self.local_id = f"{local_site_name}-{local_interface}"
         self.remote_id = f"{remote_site_name}-{remote_interface}"
@@ -126,6 +135,7 @@ class TunnelConfig:
                 interval=data.get("ping", {}).get("interval", None),
                 jitter=data.get("ping", {}).get("jitter", None),
                 expire=data.get("ping", {}).get("expire", None),
+                defaults=check_defaults.get("ping", {}),
             )
 
         self.dns_check = None
@@ -138,4 +148,5 @@ class TunnelConfig:
                 interval=data.get("dns", {}).get("interval", None),
                 jitter=data.get("dns", {}).get("jitter", None),
                 expire=data.get("dns", {}).get("expire", None),
+                defaults=check_defaults.get("dns", {}),
             )
