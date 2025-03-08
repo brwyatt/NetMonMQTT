@@ -41,7 +41,7 @@ class Entity():
         self.via_device = via_device
 
     def send_discovery(self):
-        self.parent.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
+        self.parent.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False, qos=1)
 
     @property
     def unique_id(self):
@@ -98,4 +98,4 @@ class Entity():
     def publish_state(self, state):
         if type(state) is bool:
             state = "ON" if state else "OFF"
-        self.parent.client.publish(self.state_topic, state, retain=False)
+        self.parent.client.publish(self.state_topic, state, retain=False, qos=1)

@@ -42,7 +42,7 @@ class MQTTDevice():
         self.independant_checks: Set[Check] = set()
 
     def send_discovery(self):
-        self.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False)
+        self.client.publish(self.discovery_topic, json.dumps(self.full_discovery_payload), retain=False, qos=1)
         for entity in self.all_independant_entities:
             entity.send_discovery()
 

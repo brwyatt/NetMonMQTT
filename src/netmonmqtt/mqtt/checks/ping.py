@@ -74,4 +74,5 @@ class PingCheck(Check):
                 "availability": results[2],
             }),
             retain=False,
+            qos=1,
         )

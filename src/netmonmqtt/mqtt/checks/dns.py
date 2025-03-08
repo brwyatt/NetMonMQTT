@@ -74,4 +74,5 @@ class DNSCheck(Check):
                 "availability": 100 if results[0] else 0,
             }),
             retain=False,
+            qos=1,
         )

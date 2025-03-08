@@ -15,7 +15,7 @@ class Action(NamedTuple):
 def handle_homeassistant_status(client: "HAMQTTClient", userdata, msg):
     if msg.payload.decode().lower() == "online":
         print("Home Assistant has come Online")
-        client.publish(client.availability_topic, "online", retain=False)
+        client.publish(client.availability_topic, "online", retain=False, qos=1)
         client.call_actions("connect")
     else:
         print("Home Assistant has gone Offline")
@@ -44,7 +44,7 @@ class HAMQTTClient(Client):
             action.action(*action.args, **action.kwargs)
 
     def disconnect(self, *args, **kwargs):
-        self.publish(self.availability_topic, "offline", retain=False)
+        self.publish(self.availability_topic, "offline", retain=False, qos=1)
         super().disconnect(*args, **kwargs)
 
     def call_actions(self, action_class: str):
@@ -57,7 +57,7 @@ class HAMQTTClient(Client):
             client.call_actions("connect")
             client.subscribe("homeassistant/status")
             client.message_callback_add("homeassistant/status", handle_homeassistant_status)
-            client.publish(client.availability_topic, "online", retain=False)
+            client.publish(client.availability_topic, "online", retain=False, qos=1)
         else:
             print(f"Connection failed! Code: {rc}")
 
