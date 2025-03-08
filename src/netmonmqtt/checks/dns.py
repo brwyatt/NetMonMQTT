@@ -14,14 +14,14 @@ def check_dns(
         answer = [answer]
 
     start = datetime.now(timezone.utc)
+
     try:
         result = resolve_at(server, host, query_type, lifetime=timeout)
-        end = datetime.now(timezone.utc)
-        time = (end-start).microseconds/1000  # Convert to ms
     except Exception as e:
-        end = datetime.now(timezone.utc)
-        time = (end-start).microseconds/1000  # Convert to ms
         return False, None
+
+    end = datetime.now(timezone.utc)
+    time = (end-start).microseconds/1000  # Convert to ms
     
     if answer is not None:
         records = [x.to_text() for x in result]
