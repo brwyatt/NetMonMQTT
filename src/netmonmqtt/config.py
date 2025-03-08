@@ -91,7 +91,7 @@ class CheckConfig:
         self.check_type = check_type
         self.name = name
         self.args = args if args is not None else defaults.get("args", [])
-        self.kwargs = {**kwargs, **defaults.get("kwargs", {})} if kwargs is not None else defaults.get("kwargs", {})
+        self.kwargs = {**defaults.get("kwargs", {}), **kwargs} if kwargs is not None else defaults.get("kwargs", {})
         self.interval = interval if interval is not None else defaults.get("interval", 60)
         self.jitter = jitter if jitter is not None else defaults.get("jitter", 0.5)
         self.expire = expire if expire is not None else defaults.get("expire", int((self.interval + self.jitter) * 2))
