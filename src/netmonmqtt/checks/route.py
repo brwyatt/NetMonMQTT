@@ -5,7 +5,7 @@ from scapy.all import ICMP, IP, RandShort, sr1
 
 def check_route(
     target: str,
-    hop_count: int,
+    hops: int,
     timeout: int = 2,
     expected: Optional[Union[str, List[str]]] = None
 ) -> Tuple[bool, bool, Optional[str]]:
@@ -20,7 +20,7 @@ def check_route(
         expected = [expected]
 
     try:
-        result = sr1(IP(dst=target, ttl=hop_count) / ICMP(type=8, seq=RandShort()), verbose=0, timeout=timeout)
+        result = sr1(IP(dst=target, ttl=hops) / ICMP(type=8, seq=RandShort()), verbose=0, timeout=timeout)
     except Exception as e:
         print(f"Traceroute Check: Exception: {e}")
         return False, False, None
