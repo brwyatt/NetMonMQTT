@@ -45,8 +45,8 @@ class RouteCheck(Check):
             ),
             IPAddressEntity(
                 parent,
-                f"{self.name} Route IP",
-                f"{self.entity_id}_route_ip",
+                f"{self.name} Response IP",
+                f"{self.entity_id}_response_ip",
                 state_topic=self.state_topic,
                 value_template="{{ value_json.ip }}",
                 expire=expire,
