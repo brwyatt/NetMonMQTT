@@ -42,7 +42,7 @@ dependencies = [
     "pythonping>=1.1.0,<1.2.0",
     "pyyaml>=6.0.0,<7.0.0",
     "scapy>=2.6.1,<3.0.0",
-    "setuptools>=75.8.0,<76.0.0",
+    "setuptools>=78.1.1,<81.0.0",
 ]
 
 [project.optional-dependencies]
@@ -67,7 +67,7 @@ netmonmqtt = "netmonmqtt.cli:main"
 
 [build-system]
 # These are the assumed build requirements if not specified
-requires = ["setuptools>=50.0.0,<76.0.0"]
+requires = ["setuptools>=78.1.1,<81.0.0"]
 build-backend = "setuptools.build_meta"  # Specifies the backend to use for building the distribution
 
 [tool.pytest.ini_options]
